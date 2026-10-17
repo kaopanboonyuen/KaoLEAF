@@ -8,7 +8,7 @@
 Government Savings Bank Artificial Intelligence Laboratory (GSBAIL)
 
 [![Project page](https://img.shields.io/badge/project%20page-kaopanboonyuen.github.io%2FKaoLEAF-111111)](https://kaopanboonyuen.github.io/KaoLEAF)
-[![Open in Colab](https://img.shields.io/badge/Colab-run%20the%20notebook-F9AB00?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/kaopanboonyuen/KaoLEAF/blob/main/KaoLEAF_Loan_Approval_Notebook.ipynb)
+<!-- [![Open in Colab](https://img.shields.io/badge/Colab-run%20the%20notebook-F9AB00?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/kaopanboonyuen/KaoLEAF/blob/main/KaoLEAF_Loan_Approval_Notebook.ipynb) -->
 [![Status](https://img.shields.io/badge/status-manuscript%20in%20preparation-lightgrey)](#citation)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](#installation)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org)
