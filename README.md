@@ -312,4 +312,4 @@ We thank **parthpatel2130** for releasing the [Realistic Loan Approval Dataset (
 
 ## License
 
-_Add a `LICENSE` file and name it here (for example MIT or Apache-2.0) before making the repository public._
+This project is licensed under the Apache-2.0 License.
