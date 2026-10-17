@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KaoLEAF: Knowledge-Augmented Optimization and Learned Embeddings for Automated Feature Representation</title>
+<meta name="description" content="KaoLEAF from GSBAIL: an auditable attention-based credit-scoring model with calibrated 300–850 scores, five risk bands and additive explanations.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+:root{--pink:#111111;--pink-d:#111111;--blush:#f5f5f5;--paper:#ffffff;--ink:#111111;--mute:#666666;--line:#dcdcdc;--leaf:#333333;--amber:#8a8a8a;--rose:#000000;
+--sans:"Newsreader",Georgia,serif;--serif:"Newsreader",Georgia,serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:19px/1.65 var(--serif)}
+a{color:var(--pink-d)}a:focus-visible,button:focus-visible,.band:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}.narrow{max-width:700px}
+nav{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:22px;align-items:center;height:54px;font:600 15px var(--sans);overflow-x:auto;white-space:nowrap}
+nav b{font-weight:800;font-size:18px;margin-right:auto;color:var(--pink-d)}nav a{text-decoration:none;color:var(--ink)}nav a:hover{color:var(--pink)}
+h1,h2,h3{font-family:var(--sans);line-height:1.1;margin:0}
+h1{font-size:clamp(34px,5.6vw,64px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(28px,3.6vw,40px);font-weight:700;letter-spacing:-.015em;margin-bottom:14px}
+h3{font-size:22px;font-weight:700;margin:34px 0 8px}
+section{padding:72px 0 8px}
+.lede{font-size:22px;color:var(--mute);max-width:720px}
+.hero{padding:64px 0 24px;background:linear-gradient(180deg,var(--blush),var(--paper))}
+.hero h1 .sub{display:block;font-size:.4em;font-weight:500;letter-spacing:0;margin-top:16px;color:var(--mute);max-width:820px;line-height:1.3}
+.auth{margin:26px 0 6px;font:600 17px var(--sans)}.auth span{display:block;font-weight:500;color:var(--mute)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+.btn{font:700 15px var(--sans);padding:10px 18px;border-radius:999px;border:2px solid var(--ink);text-decoration:none;color:var(--ink);background:none;cursor:pointer}
+.btn.p{background:var(--pink);border-color:var(--pink);color:#fff}.btn:hover{transform:translateY(-1px)}
+.ruler{margin:52px 0 0}.ruler h2{font-size:24px}
+.bands{display:flex;height:96px;border-radius:14px;overflow:hidden;margin-top:14px;box-shadow:0 0 0 2px var(--ink)}
+.band{flex:1;border:0;color:#fff;font:700 15px var(--sans);cursor:pointer;padding:0;position:relative;text-align:left;padding:14px;transform-origin:left;animation:grow 1.1s cubic-bezier(.2,.8,.2,1) both}
+.band small{display:block;font:500 12px var(--mono);opacity:.9;margin-top:4px}
+.band[aria-pressed=true]{box-shadow:inset 0 -8px 0 rgba(255,255,255,.75)}
+.band:nth-child(2){animation-delay:.1s}.band:nth-child(3){animation-delay:.2s}.band:nth-child(4){animation-delay:.3s}.band:nth-child(5){animation-delay:.4s}
+@keyframes grow{from{transform:scaleX(0);opacity:0}}
+.axis{display:flex;justify-content:space-between;font:12px var(--mono);color:var(--mute);margin-top:6px}
+#bandInfo{margin-top:16px;padding:16px 20px;background:#fff;border:1.5px solid var(--line);border-radius:12px;font-size:18px;min-height:76px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-top:34px}
+.kpi{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}
+.kpi b{display:block;font:800 34px var(--sans);color:var(--pink-d);letter-spacing:-.02em}.kpi span{font-size:15px;color:var(--mute);line-height:1.35;display:block}
+.note{border-left:5px solid var(--amber);background:#f7f7f7;padding:14px 20px;border-radius:0 10px 10px 0;margin:22px 0;font-size:18px}
+table{width:100%;border-collapse:collapse;font:15px var(--sans);background:#fff}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}
+th{font-weight:700;background:var(--blush);position:sticky;top:0}
+tr.k td{background:#ececec;font-weight:700}tr.k td:first-child{box-shadow:inset 5px 0 0 var(--pink)}
+.scroll{overflow-x:auto;border:1.5px solid var(--line);border-radius:12px}
+.bar{display:inline-block;height:9px;border-radius:5px;background:var(--mute);vertical-align:middle;margin-right:8px}tr.k .bar{background:var(--pink)}
+.plate{margin:26px 0;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px}
+.plate img{width:100%;height:auto;display:block;border-radius:6px}
+.plate figcaption{font-size:16px;color:var(--mute);padding:10px 6px 2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.eq{background:#fff;border:1.5px solid var(--line);border-left:6px solid var(--pink);border-radius:0 12px 12px 0;padding:14px 22px;margin:16px 0;overflow-x:auto}
+.eq h3{margin:4px 0 2px;font-size:18px}.eq p{margin:2px 0 6px;font-size:17px;color:var(--mute)}
+.tokens{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.tk{font:600 12px var(--mono);padding:5px 9px;border-radius:6px;color:#fff}
+.legend{font:600 14px var(--sans);display:flex;flex-wrap:wrap;gap:16px;margin:6px 0 18px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px}
+pre{background:var(--ink);color:#eeeeee;padding:20px;border-radius:12px;overflow-x:auto;font:14px/1.55 var(--mono);margin:0}
+.bibhead{display:flex;justify-content:space-between;align-items:center;margin:26px 0 10px}.bibhead h3{margin:0}
+footer{margin-top:90px;padding:36px 0 56px;background:var(--ink);color:#e9cfe0;font:15px/1.6 var(--sans)}footer a{color:#dddddd}
+@media(prefers-reduced-motion:reduce){.band{animation:none}html{scroll-behavior:auto}}
+
+/* ===== v2: lab showcase ===== */
+body{overflow-x:clip}.hand{font-family:Caveat,"Comic Sans MS",cursive}
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.33;animation:drift 24s ease-in-out infinite alternate}
+.aurora i:nth-child(1){background:#ff7bb8;left:-15vmax;top:-20vmax}.aurora i:nth-child(2){background:#7fe0b0;right:-20vmax;top:30vh;animation-delay:-8s}.aurora i:nth-child(3){background:#c9a6ff;left:20vw;bottom:-30vmax;animation-delay:-15s}
+@keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.2)}}
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--pink),var(--leaf));z-index:30}
+#progress::after{content:"🍃";position:absolute;right:-12px;top:-9px;font-size:20px}
+nav a{padding:4px 2px}nav a.act{color:var(--pink);text-decoration:underline wavy;text-underline-offset:7px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(245,245,245,.8),transparent)}
+#net{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.hero-in{position:relative;z-index:1}.hero-in>h1,.hero-in>.lede,.hero-in>.hand,.hero-in>.auth,.hero-in>.btns{max-width:800px}
+.word{display:inline-block;font-size:clamp(66px,13vw,150px);letter-spacing:-.04em;font-weight:800;cursor:pointer}
+.l{display:inline-block;animation:drop .9s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i)*.09s)}.l.kao{color:var(--pink)}.l.leaf{color:var(--leaf)}
+.l:hover{animation:jig .5s}
+@keyframes drop{from{transform:translateY(-90px) rotate(-18deg) scale(.4);opacity:0}}
+@keyframes jig{30%{transform:translateY(-14px) rotate(-8deg)}60%{transform:translateY(2px) rotate(6deg)}}
+.scribble{display:block;width:min(470px,80%);margin:-6px 0 0 6px}.scribble path{fill:none;stroke:var(--pink);stroke-width:5;stroke-linecap:round;stroke-dasharray:560;stroke-dashoffset:560;animation:draw 1.3s .9s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hand.big{font-size:40px;font-weight:700;line-height:1.1;margin:18px 0 4px;perspective:400px}
+#rot{display:inline-block;color:var(--pink);border-bottom:4px dotted var(--leaf)}@keyframes flip{from{transform:translateY(60%) rotateX(80deg);opacity:0}}
+.sticker{display:inline-block;background:#fff176;color:#5b4300;font:700 24px Caveat;padding:6px 16px;transform:rotate(-4deg);box-shadow:3px 4px 0 rgba(0,0,0,.15);border-radius:3px;animation:bob 3.5s ease-in-out infinite}
+.btn:hover{animation:wig .4s}@keyframes wig{30%{transform:rotate(-3deg) scale(1.05)}70%{transform:rotate(3deg) scale(1.05)}}
+.mascot{position:absolute;right:24px;top:8px;width:190px;text-align:center;z-index:2;cursor:pointer;animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-12px) rotate(2deg)}}
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:4px 12px;font:700 23px/1.1 Caveat;position:relative;margin-bottom:12px}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-11px;width:16px;height:16px;background:#fff;border:2.5px solid var(--ink);border-top:0;border-left:0;transform:translateX(-50%) rotate(45deg)}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+@media(max-width:860px){.mascot{display:none}}
+.fall{position:absolute;top:-30px;pointer-events:none;opacity:.75;z-index:0;animation:fall linear infinite}
+@keyframes fall{to{transform:translate(var(--dx),1000px) rotate(540deg)}}
+.marq{overflow:hidden;background:var(--ink);color:#e5e5e5;padding:10px 0;transform:rotate(-1deg);margin:34px -10px 0;border-block:3px solid var(--pink)}
+.track{display:flex;width:max-content;animation:mq 34s linear infinite;font:700 19px var(--sans)}.track span{margin-right:38px}.track b{color:var(--pink)}
+@keyframes mq{to{transform:translateX(-50%)}}
+.rv{opacity:0;transform:translateY(34px) scale(.98);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}.rv.in{opacity:1;transform:none}
+section h2{position:relative;padding-bottom:16px}section h2::after{content:"";position:absolute;left:0;bottom:0;height:10px;width:0;transition:width 1.2s .3s ease-out;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='10'%3E%3Cpath d='M0 5Q6 0 12 5T24 5' fill='none' stroke='%23e0117f' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x}
+section h2.in::after{width:min(220px,60%)}
+.plate figcaption{font:700 24px/1.15 Caveat;color:var(--pink-d)}.plate img{transition:transform .4s}.plate:hover img{transform:scale(1.015)}
+.note{position:relative;transform:rotate(-.4deg)}.note::before{content:"honest note ✎";display:block;font:700 28px Caveat;color:#555555}.note::after{content:"📌";position:absolute;right:14px;top:-12px;font-size:24px}
+.bar{transition:width 1.1s cubic-bezier(.2,.8,.2,1)}tbody tr:hover td{background:var(--blush)}#lb tbody tr.k:first-child td:first-child::before{content:"👑 "}
+.kpi{transition:box-shadow .3s}.kpi:hover{box-shadow:0 14px 34px rgba(0,0,0,.15)}
+.pipe{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px;margin:26px 0}.pipe svg{width:100%;height:auto;display:block}
+.demo{display:grid;grid-template-columns:1fr 1.25fr;gap:20px;margin:0 0 30px}@media(max-width:820px){.demo{grid-template-columns:1fr}}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:18px 22px}
+.gauge{text-align:center}#gauge{width:100%;max-width:340px}.gs{font:800 64px/1 var(--sans);color:var(--leaf)}.gl{font:600 15px var(--sans);color:var(--mute)}
+#needle{transform-origin:150px 150px;transform:rotate(-90deg);transition:transform 2.6s cubic-bezier(.3,1.45,.5,1)}
+.why h3{margin:0 0 6px;font:700 32px Caveat;color:var(--pink-d)}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.chips span{font:600 13px var(--sans);background:var(--blush);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.rb{display:grid;grid-template-columns:minmax(120px,1.1fr) 1.4fr 48px;gap:8px;align-items:center;font:600 13px var(--sans);margin:5px 0}
+.rb u{display:block;height:12px;background:#e8e8e8;border-radius:6px;overflow:hidden;text-decoration:none}.rb i{display:block;height:100%;width:0;border-radius:6px;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.rb i.pos{background:var(--leaf)}.rb i.neg{background:var(--rose)}.rb em{font-style:normal;text-align:right;font-family:var(--mono);font-size:12px}
+.tiny{font:700 21px Caveat;color:var(--mute);margin:10px 0 0}
+.cf,.sp{position:fixed;pointer-events:none}.cf{z-index:50;font-size:22px;animation:cf 1.3s ease-out forwards}@keyframes cf{to{transform:translate(var(--x),calc(var(--y) + 140px)) rotate(var(--r));opacity:0}}
+.sp{z-index:40;font-size:14px;transform:translate(-50%,-50%);animation:sp .8s ease-out forwards}@keyframes sp{to{transform:translate(-50%,calc(-50% + 26px)) scale(.2) rotate(120deg);opacity:0}}
+.lb{position:fixed;inset:0;background:rgba(17,17,17,.94);display:none;place-items:center;align-content:center;gap:10px;z-index:60;padding:24px;cursor:zoom-out}.lb.on{display:grid;animation:fi .25s}@keyframes fi{from{opacity:0}}
+.lb img{max-width:96vw;max-height:84vh;background:#fff;border-radius:10px}.lb span{color:#e5e5e5;font-size:26px}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.l,.mascot,.sticker,.track,.fall,.aurora i{animation:none}.scribble path{animation:none;stroke-dashoffset:0}#needle{transition:none}}
+
+/* ===== v3: academic monochrome ===== */
+body{background:#fff;font-size:19px}.aurora,.sticker,.fall,.mascot{display:none}
+h1,h2,h3{font-weight:600;letter-spacing:-.01em}h2{font-size:clamp(28px,3.2vw,36px)}
+.word{font-weight:600;letter-spacing:-.035em}.l.leaf{color:#6b6b6b}.l.kao{color:#111}
+.hero{background:linear-gradient(180deg,#f5f5f5,#fff);border-bottom:1px solid #111}
+.hero h1 .sub{font-weight:400;font-style:italic;color:#444;font-size:.38em}
+nav{border-bottom:1px solid #111}nav b{color:#111;font-weight:700}nav a.act{color:#111}
+.btn{border-radius:2px;border-width:1.5px}.btn.p{color:#fff}.hand.big{font-size:38px}
+.abstract{max-width:800px;margin:30px 0 0;padding:16px 0 14px;border-top:1px solid #111;border-bottom:1px solid #111;font-size:17.5px;line-height:1.6;text-align:justify;hyphens:auto}
+.abstract b{font-variant:small-caps;font-size:1.05em;letter-spacing:.04em}.abstract em{display:block;margin-top:8px;color:#555;font-size:16px}
+section h2::after{background:#111;height:2px}main{counter-reset:sec}section h2::before{counter-increment:sec;content:counter(sec) ".  ";color:#8a8a8a;font-weight:400}
+.card,.kpi,.plate,.eq,.pipe,#bandInfo,.bands{border-radius:3px}.scroll{border:0;border-radius:0}.eq{border-radius:0}
+table{border-top:2px solid #111;border-bottom:2px solid #111;font-variant-numeric:tabular-nums}th{background:#fff;border-bottom:1px solid #111;position:static}td{border-bottom:1px solid #eee}tr.k td{background:#f0f0f0}
+#lb tbody tr.k:first-child td:first-child::before{content:none}.bar{background:#999}tr.k .bar{background:#111}
+body{counter-reset:fig}.plate{counter-increment:fig}.plate figcaption{color:#222}.plate figcaption::before{content:"Fig. " counter(fig) ".  ";font-weight:700}
+.plate img{filter:grayscale(1) contrast(1.05);transition:filter .5s,transform .4s}.plate:hover img{filter:none}
+.note{transform:none;background:#f7f7f7;border-left:5px solid #111;border-radius:0}.note::before{color:#444}.note::after{content:none}
+.marq{transform:none;margin:34px 0 0;background:#111;border-block:0}.track b{color:#888}#progress::after{content:none}#progress{height:3px}
+.band[aria-pressed=true]{box-shadow:inset 0 -8px 0 #fff}.band:nth-child(-n+2)[aria-pressed=true]{box-shadow:inset 0 -8px 0 #111}
+.rb i.neg{background:repeating-linear-gradient(45deg,#777 0 4px,#ddd 4px 8px)}.rb i.pos{background:#111}.gs{color:#111}
+.legend i{border:1.5px solid #111}.tk{border:1.5px solid #111}.kpi b{font-weight:600}.kpi:hover{box-shadow:0 8px 22px rgba(0,0,0,.12)}
+pre{background:#111;border-radius:3px}footer{background:#111}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><b>KaoLEAF</b><a href="#results">Results</a><a href="#method">Method</a><a href="#score">Score</a><a href="#explain">Explainability</a><a href="#data">Data</a><a href="#cite">Cite</a></div></nav>
+
+<div id="progress"></div>
+<header class="hero"><canvas id="net" aria-hidden="true"></canvas><div class="wrap hero-in">
+
+<h1><span class="word" id="word">KaoLEAF</span><svg class="scribble" viewBox="0 0 480 20" aria-hidden="true"><path d="M4 12C90 2 170 18 250 9S400 14 476 5"/></svg><span class="sub">Knowledge-Augmented Optimization and Learned Embeddings for Automated Feature Representation</span></h1>
+<p class="hand big">KaoLEAF <b id="rot">scores</b> every applicant ✎</p><p class="lede" style="margin-top:8px">A new AI from GSBAIL for finance scoring. KaoLEAF reads an applicant as a sequence of financial concepts, learns a reusable risk embedding, and returns a calibrated 300–850 score with reasons a credit officer can read.</p>
+<div class="auth">Teerapong Panboonyuen<span>Government Savings Bank Artificial Intelligence Laboratory (GSBAIL)</span></div>
+<div class="btns"><a class="btn p" href="https://github.com/kaopanboonyuen/KaoLEAF">Code on GitHub</a><a class="btn" href="#cite">BibTeX</a><a class="btn" href="https://www.kaggle.com/datasets/parthpatel2130/realistic-loan-approval-dataset-us-and-canada">Dataset on Kaggle</a></div>
+
+<div class="abstract"><b>Abstract.</b> We present KaoLEAF, an attention-based model for credit decisions on tabular applicant data. Numeric features are tokenised with learned periodic embeddings, arranged in a knowledge-based order, mixed locally by a gated convolution and globally by self-attention, and pre-trained by masked-feature modelling. A temperature-calibrated deep ensemble yields a 300–850 score with five risk bands, and Integrated Gradients provide additive reason codes. On the public Loan Approval (US and Canada) benchmark, evaluated on 10,000 held-out applicants, KaoLEAF reaches a test AUC of 0.9825 and its fusion with gradient-boosted trees reaches 0.9852, ranking first among eleven models with an ECE of 0.0096. All results come from a single dataset and a single split.
+<em>Manuscript in preparation. Keywords: credit scoring, tabular deep learning, attention, calibration, explainability.</em></div>
+<div class="ruler"><h2>One score, five strata. Tap a band.</h2>
+<div class="bands" id="bands" role="group" aria-label="KaoLEAF score bands"></div>
+<div class="axis"><span>300</span><span>410</span><span>520</span><span>630</span><span>740</span><span>850</span></div>
+<div id="bandInfo" aria-live="polite"></div></div>
+
+<div class="kpis">
+<div class="kpi"><b data-n="0.9852" data-d="4">0.9852</b><span>test ROC-AUC of KaoLEAF-Fusion, rank 1 of 11 models</span></div>
+<div class="kpi"><b data-n="0.0096" data-d="4">0.0096</b><span>expected calibration error, lowest among the boosted-tree models</span></div>
+<div class="kpi"><b data-n="190" data-d="0" data-s="K">190K</b><span>parameters in one KaoLEAF member (d=64, 3 layers)</span></div>
+<div class="kpi"><b data-n="0.72" data-d="2">0.72</b><span>Spearman agreement between KaoLEAF attributions and LightGBM SHAP</span></div>
+</div>
+</div></header><div class="marq" aria-hidden="true"><div class="track" id="track"></div></div>
+
+<main class="wrap">
+<section id="results"><h2>Results on 10,000 held-out applicants</h2>
+<p class="lede">Every model sees the same 24 features and the same split. The tree baselines were tuned and early-stopped on the same validation set.</p>
+<div class="note"><b>Read this the way a reviewer would.</b> KaoLEAF-Fusion takes first place. The standalone KaoLEAF ensemble sits behind the tuned gradient-boosting models, ahead of the plain FT-Transformer, the MLP, Random Forest, Extra Trees and logistic regression. We report that plainly: the case for KaoLEAF is ranking competitive with boosting, plus a reusable embedding, calibrated scores and faithful explanations.</div>
+<div class="scroll"><table id="lb"><thead><tr><th>Model</th><th>Test AUC</th><th>PR-AUC</th><th>KS</th><th>ECE ↓</th><th>Brier ↓</th></tr></thead><tbody></tbody></table></div>
+<p style="font-size:15px;color:var(--mute)"><button class="btn" id="replay" style="padding:5px 14px;margin-right:10px">▶ Replay the race</button>AUC bars start at 0.94. Source: <code>kaoleaf_artifacts/leaderboard.csv</code>.</p>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/res_01_auc_ci.png" alt="Test ROC-AUC with 95 percent bootstrap intervals for all models"><figcaption>Test AUC with 95% bootstrap intervals on shared resamples. The top four overlap, so treat the leaders as close.</figcaption></figure>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/res_02_roc_pr.png" alt="ROC, zoomed ROC and precision-recall curves"><figcaption>ROC, the low-false-positive region that matters for lending, and precision–recall.</figcaption></figure>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/res_03_calibration_ks_gains.png" alt="Reliability diagram, KS curve and cumulative gains"><figcaption>Reliability, KS separation and cumulative gains for the calibrated ensemble.</figcaption></figure>
+</section>
+
+<section id="method"><h2>How KaoLEAF works</h2>
+<p class="lede">Twenty-four engineered features become tokens, ordered by financial meaning so that neighbours belong to the same block.</p>
+<div class="tokens" id="tokens"></div>
+<div class="legend"><span><i style="background:#fff"></i>Profile</span><span><i style="background:#111"></i>Credit behaviour</span><span><i style="background:#c8c8c8"></i>Capacity</span><span><i style="background:#ececec"></i>Request</span></div>
+
+<div class="pipe"><svg id="pipesvg" viewBox="0 0 1000 185" role="img" aria-label="Pipeline: feature tokens, local operator, self-attention, embedding, score">
+<path id="flow" d="M10 75H990" stroke="#dcdcdc" stroke-width="6" stroke-dasharray="2 12" stroke-linecap="round" fill="none"/>
+<g><circle r="7" fill="#111111"><animateMotion dur="6s" begin="-0.0s" repeatCount="indefinite"><mpath href="#flow"/></animateMotion></circle><circle r="7" fill="#333333"><animateMotion dur="6s" begin="-1.2s" repeatCount="indefinite"><mpath href="#flow"/></animateMotion></circle><circle r="7" fill="#8a8a8a"><animateMotion dur="6s" begin="-2.4s" repeatCount="indefinite"><mpath href="#flow"/></animateMotion></circle><circle r="7" fill="#555555"><animateMotion dur="6s" begin="-3.5999999999999996s" repeatCount="indefinite"><mpath href="#flow"/></animateMotion></circle><circle r="7" fill="#000000"><animateMotion dur="6s" begin="-4.8s" repeatCount="indefinite"><mpath href="#flow"/></animateMotion></circle></g>
+<g font-family="Newsreader,Georgia,serif" text-anchor="middle"><rect x="10" y="38" width="150" height="74" rx="16" fill="#fff" stroke="#8a8a8a" stroke-width="3"/><text x="85" y="70" font-weight="700" font-size="17" fill="#111111">24 tokens</text><text x="85" y="92" font-size="13" fill="#666666">periodic embed</text><text x="85" y="152" font-family="Caveat" font-weight="700" font-size="23" fill="#111111">↑ numbers become waves</text><rect x="214" y="38" width="150" height="74" rx="16" fill="#fff" stroke="#000000" stroke-width="3"/><text x="289" y="70" font-weight="700" font-size="17" fill="#111111">Local gated conv</text><text x="289" y="92" font-size="13" fill="#666666">semantic order</text><text x="289" y="152" font-family="Caveat" font-weight="700" font-size="23" fill="#111111">↑ neighbours talk</text><rect x="418" y="38" width="150" height="74" rx="16" fill="#fff" stroke="#333333" stroke-width="3"/><text x="493" y="70" font-weight="700" font-size="17" fill="#111111">Self-attention</text><text x="493" y="92" font-size="13" fill="#666666">3 layers</text><text x="493" y="152" font-family="Caveat" font-weight="700" font-size="23" fill="#111111">↑ everyone talks</text><rect x="622" y="38" width="150" height="74" rx="16" fill="#fff" stroke="#555555" stroke-width="3"/><text x="697" y="70" font-weight="700" font-size="17" fill="#111111">Embedding z</text><text x="697" y="92" font-size="13" fill="#666666">behaviour vector</text><text x="697" y="152" font-family="Caveat" font-weight="700" font-size="23" fill="#111111">↑ one risk fingerprint</text><rect x="826" y="38" width="150" height="74" rx="16" fill="#fff" stroke="#111111" stroke-width="3"/><text x="901" y="70" font-weight="700" font-size="17" fill="#111111">Score 300–850</text><text x="901" y="92" font-size="13" fill="#666666">bands A–E</text><text x="901" y="152" font-family="Caveat" font-weight="700" font-size="23" fill="#111111">↑ calibrated &amp; explained</text></g></svg></div>
+<div class="eq"><h3>Feature tokenisation with learned periodic embeddings</h3><p>Numerics are quantile-mapped to ≈ N(0,1) on train only. Each feature learns its own frequencies.</p>
+$$\mathbf e_j=\mathrm{ReLU}\!\Big(W_j\big[\sin(2\pi \mathbf c_j\tilde x_j)\,;\,\cos(2\pi \mathbf c_j\tilde x_j)\big]\Big)+\tilde x_j\,\mathbf a_j+\mathbf b_j,\qquad \mathbf t_j=\mathbf e_j+\mathbf p_j$$
+$$H^{(0)}=[\mathbf t_{\mathrm{cls}};\mathbf t_1;\dots;\mathbf t_{m+c}]\in\mathbb R^{(m+c+1)\times d}$$</div>
+
+<div class="eq"><h3>Local operator over the knowledge-ordered tokens</h3><p>A gated depthwise-separable convolution slides along the semantic order.</p>
+$$\tilde H=H+\mathrm{Drop}\big(\mathrm{GLU}(\mathrm{PW}(\mathrm{DW}_{k}(\mathrm{LN}(H))))\big)$$</div>
+
+<div class="eq"><h3>Global dependency modelling</h3><p>Pre-LayerNorm multi-head self-attention with a GEGLU feed-forward, repeated for L layers.</p>
+$$\mathrm{Attn}_h(H)=\mathrm{softmax}\!\Big(\tfrac{QK^\top}{\sqrt{d_h}}\Big)V,\qquad H'=\tilde H+\mathrm{MHA}(\mathrm{LN}\,\tilde H),\quad H''=H'+\mathrm{FFN}(\mathrm{LN}\,H')$$</div>
+
+<div class="eq"><h3>Behaviour embedding and prediction</h3><p>Attention pooling is concatenated with the [CLS] state to form the reusable embedding z.</p>
+$$\alpha=\mathrm{softmax}\!\big(H_{1:}\mathbf q/\sqrt d\big),\quad \mathbf z=\mathrm{GELU}\!\Big(W\big[\mathrm{LN}(h_{\mathrm{cls}})\,;\,\textstyle\sum_i\alpha_i h_i\big]\Big),\quad \hat p=\sigma\!\big(f(x)/T\big),\ f(x)=\mathbf w^\top\mathbf z+b$$</div>
+
+<div class="eq"><h3>Two-stage learning and deep ensemble</h3><p>Stage 1 reconstructs masked features without labels. Stage 2 fine-tunes with AdamW, warm-up plus cosine decay and early stopping on validation AUC.</p>
+$$\mathcal L_{1}=\tfrac{1}{|\mathcal M_{\mathrm{num}}|}\sum_{j\in\mathcal M_{\mathrm{num}}}(\hat x_j-\tilde x_j)^2+\overline{\mathrm{CE}}_{\mathrm{cat}},\qquad \mathcal L_{2}=\mathrm{BCE}\big(f(x),y\big),\qquad \bar f=\tfrac1S\sum_{s=1}^{S}f_s$$</div>
+
+<div class="eq"><h3>Calibration and the KaoLEAF Score</h3><p>Temperature scaling is fit on validation only. The fitted value is T* = 1.044.</p>
+$$T^\star=\arg\min_T\ \mathrm{NLL}\big(\sigma(\bar f/T)\big),\qquad \mathrm{Score}=\mathrm{round}\big(300+550\,\hat p\big),\qquad \text{bands } A\text{–}E \text{ at } \hat p\in\{0.2,0.4,0.6,0.8\}$$</div>
+
+<div class="eq"><h3>Faithful explanations</h3><p>Integrated Gradients start from the median applicant in quantile space and satisfy completeness. Categoricals use UNK-occlusion.</p>
+$$\mathrm{IG}_j(x)=(\tilde x_j-\tilde x^{0}_j)\!\int_0^1\!\partial_j f\big(\tilde x^{0}+\alpha(\tilde x-\tilde x^{0})\big)\,d\alpha,\qquad \sum_j \mathrm{IG}_j=f(x)-f(\tilde x^{0})$$</div>
+
+<div class="eq"><h3>KaoLEAF-Fusion</h3><p>A logistic stacker over the logits of KaoLEAF and the three strongest boosted models, fit on validation with the test set untouched.</p>
+$$\hat p_{\mathrm{fusion}}=\sigma\!\Big(\beta_0+\beta_{\mathrm{leaf}}\,\bar f+\textstyle\sum_{g\in\{\text{LGBM, Cat, XGB}\}}\beta_g\,\mathrm{logit}(\hat p_g)\Big)$$</div>
+
+<h3>What each component is worth</h3>
+<p>Single-seed ablation under an identical budget. Differences near 1e-3 AUC are inside seed noise; only the periodic embedding shows a consistent gap, so we claim only that.</p>
+<div class="scroll"><table id="abl"><thead><tr><th>Variant</th><th>Test AUC</th></tr></thead><tbody></tbody></table></div>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/res_04_training_curves.png" alt="Stage 1 and stage 2 training curves"><figcaption>Stage 1 masked-feature loss and stage 2 validation AUC across the five ensemble seeds.</figcaption></figure>
+</section>
+
+<section id="score"><h2>From probability to a score a bank can use</h2>
+<p class="lede">Representation, prediction and decision policy are separate layers. Thresholds and the hard rule for <code>defaults_on_file</code> live in policy, so a bank can change them without retraining.</p>
+<div class="demo"><div class="card gauge"><svg id="gauge" viewBox="0 0 300 175" aria-label="Score gauge reading 850"><g id="needle"><path d="M150 150L150 46" stroke="#111111" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="150" r="11" fill="#111111"/></g><text x="30" y="172" font-size="11" font-family="JetBrains Mono" fill="#666666">300</text><text x="250" y="172" font-size="11" font-family="JetBrains Mono" fill="#666666">850</text></svg>
+<div class="gs" id="gs">300</div><div class="gl">P(approve) = 1.000 · Band A, Very strong · policy: APPROVE</div></div>
+<div class="card why"><h3>Meet the demo applicant ✎</h3><div class="chips"><span>29 yrs</span><span>Employed</span><span>income 52,000</span><span>credit score 655</span><span>DTI 0.31</span><span>Personal Loan</span><span>intent: Education</span><span>asks 15,000</span></div>
+<div class="rb"><span>loan_intent = Education</span><u><i class="pos" data-w="98"></i></u><em>+0.88</em></div><div class="rb"><span>credit_score = 655</span><u><i class="pos" data-w="76"></i></u><em>+0.68</em></div><div class="rb"><span>payment_to_income = 0.1</span><u><i class="pos" data-w="22"></i></u><em>+0.20</em></div><div class="rb"><span>savings_assets = 3.5e3</span><u><i class="pos" data-w="13"></i></u><em>+0.12</em></div>
+<div class="rb"><span>delinquencies_2yrs = 1</span><u><i class="neg" data-w="50"></i></u><em>−0.45</em></div><div class="rb"><span>loan_amount = 1.5e4</span><u><i class="neg" data-w="43"></i></u><em>−0.39</em></div><div class="rb"><span>risk_events = 1</span><u><i class="neg" data-w="14"></i></u><em>−0.13</em></div><div class="rb"><span>debt_to_income = 0.31</span><u><i class="neg" data-w="4"></i></u><em>−0.04</em></div>
+<p class="tiny">Real output of the notebook's inference demo: one applicant, not a benchmark. Solid bars push toward approval, hatched bars against.</p></div></div>
+<div class="scroll"><table><thead><tr><th>Band</th><th>Score range</th><th>Applicants</th><th>Share</th><th>Predicted</th><th>Observed approval</th></tr></thead><tbody>
+<tr><td>A · Very strong</td><td>740–850</td><td>4,632</td><td>46.3%</td><td>97.5%</td><td>97.8%</td></tr>
+<tr><td>B · Strong</td><td>631–740</td><td>609</td><td>6.1%</td><td>70.4%</td><td>71.1%</td></tr>
+<tr><td>C · Moderate</td><td>520–630</td><td>464</td><td>4.6%</td><td>50.3%</td><td>57.8%</td></tr>
+<tr><td>D · Weak</td><td>410–520</td><td>504</td><td>5.0%</td><td>29.7%</td><td>33.9%</td></tr>
+<tr><td>E · Very weak</td><td>300–410</td><td>3,791</td><td>37.9%</td><td>2.3%</td><td>2.7%</td></tr></tbody></table></div>
+<p>Observed approval rises monotonically from E to A and tracks the predicted rate in every band.</p>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/res_06_score_bands.png" alt="Score distribution, band calibration and portfolio share"><figcaption>Score distribution by outcome, band calibration and portfolio share.</figcaption></figure>
+</section>
+
+<section id="explain"><h2>Explanations an auditor can check</h2>
+<p class="lede">Importance is reported per feature and per financial block, and cross-checked against a different model family.</p>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/xai_01_global_importance.png" alt="Global importance by feature and block"><figcaption>Global importance: mean |Integrated Gradients|, grouped into profile, credit behaviour, capacity and request.</figcaption></figure>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/xai_06_local_explanations.png" alt="Reason codes for three applicants"><figcaption>Reason codes for the most confident approval, the most confident decline and a borderline case, where the bars nearly cancel and manual review applies.</figcaption></figure>
+<div class="grid2">
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/xai_03_leaf_vs_shap.png" alt="KaoLEAF Integrated Gradients versus LightGBM SHAP"><figcaption>KaoLEAF versus LightGBM SHAP: Spearman ρ = 0.72.</figcaption></figure>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/xai_05_embedding_tsne.png" alt="t-SNE of raw features versus learned embedding"><figcaption>t-SNE of raw features versus the learned KaoLEAF embedding, organised along a risk gradient.</figcaption></figure>
+</div>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/xai_07_ice_pdp.png" alt="ICE and partial dependence with monotonicity audit"><figcaption>ICE and partial-dependence curves for credit score, DTI, delinquencies and credit history, used for the monotonicity audit.</figcaption></figure>
+</section>
+
+<section id="data"><h2>Data and governance</h2>
+<p class="lede">KaoLEAF is benchmarked on the public <a href="https://www.kaggle.com/datasets/parthpatel2130/realistic-loan-approval-dataset-us-and-canada">Realistic Loan Approval Dataset (US and Canada)</a> from Kaggle, created by parthpatel2130: 50,000 applicants, 55.0% approved. We thank the author for releasing it. The same method is planned for GSB data, which cannot be made public.</p>
+<div class="grid2">
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/eda_06_approval_rate_curves.png" alt="Approval rate versus key features"><figcaption>Approval rate by decile. DTI behaves like a threshold, which is where learned periodic embeddings help.</figcaption></figure>
+<figure class="plate"><img loading="lazy" src="kaoleaf_artifacts/figures/audit_01_slices.png" alt="Slice and fairness audit"><figcaption>Slice audit by age group, occupation, product and intent.</figcaption></figure>
+</div>
+<h3>Limits we state up front</h3>
+<p>The data is cross-sectional, so the local operator convolves over ordered financial features, not over time; the temporal encoder is the next step for longitudinal data. The dataset appears simulated, so results show method behaviour rather than bank performance. <code>age</code> is a protected attribute and a variant without it is supported. Pricing features may leak underwriting outcomes in production. Results come from one dataset and one split. The model is not validated for production lending.</p>
+</section>
+
+<section id="cite"><h2>Cite</h2>
+<p>Manuscript in preparation. Please cite the project page below.</p>
+<div class="bibhead"><h3>BibTeX</h3><button class="btn" id="copy">Copy BibTeX</button></div>
+<pre id="bib">@misc{panboonyuen2026kaoleaf,
+  title  = {{KaoLEAF}: Knowledge-Augmented Optimization and Learned Embeddings
+            for Automated Feature Representation},
+  author = {Panboonyuen, Teerapong},
+  year   = {2026},
+  note   = {Government Savings Bank Artificial Intelligence Laboratory (GSBAIL).
+            Manuscript in preparation.
+            Code and project page: https://kaopanboonyuen.github.io/KaoLEAF}
+}</pre>
+<h3>Acknowledgements</h3><p>We thank <b>parthpatel2130</b> for releasing the <a href="https://www.kaggle.com/datasets/parthpatel2130/realistic-loan-approval-dataset-us-and-canada">Realistic Loan Approval Dataset (US and Canada)</a> on Kaggle, which all results on this page were obtained with.</p></section>
+</main>
+<footer><div class="wrap">KaoLEAF · Teerapong Panboonyuen · GSB Artificial Intelligence Laboratory (GSBAIL)<br>Benchmark data: <a href="https://www.kaggle.com/datasets/parthpatel2130/realistic-loan-approval-dataset-us-and-canada">Loan Approval (US &amp; Canada), Kaggle / parthpatel2130</a> · <a href="https://github.com/kaopanboonyuen/KaoLEAF">github.com/kaopanboonyuen/KaoLEAF</a></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script>
+renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true}],throwOnError:false});
+const B=[["E","Very weak","300–410",.379,.027,"#d0d0d0"],["D","Weak","410–520",.050,.339,"#a8a8a8"],["C","Moderate","520–630",.046,.578,"#7a7a7a"],["B","Strong","631–740",.061,.711,"#4a4a4a"],["A","Very strong","740–850",.463,.978,"#111111"]];
+const bs=document.getElementById("bands"),info=document.getElementById("bandInfo");
+function pick(i){[...bs.children].forEach((b,k)=>b.setAttribute("aria-pressed",k==i));const [l,n,r,s,o]=B[i];
+info.innerHTML=`<b>Band ${l}, ${n}</b> (score ${r}). ${(s*100).toFixed(1)}% of test applicants land here, and ${(o*100).toFixed(1)}% of them were actually approved.`}
+B.forEach((b,i)=>{const e=document.createElement("button");e.className="band";e.style.background=b[5];e.style.color=i<2?"#111":"#fff";e.setAttribute("aria-pressed","false");
+e.innerHTML=`${b[0]}<small>${(b[4]*100).toFixed(1)}% approved</small>`;e.onclick=()=>pick(i);bs.appendChild(e)});pick(4);
+const L=[["KaoLEAF-Fusion (LEAF + GBDT)",.9852,.9881,.8617,.0096,.0484,1],["LightGBM (Optuna)",.9850,.9879,.8607,.0108,.0487],["CatBoost",.9849,.9879,.8607,.0129,.0489],["XGBoost",.9842,.9874,.8581,.0137,.0501],["HistGradientBoosting",.9835,.9866,.8533,.0111,.0511],["KaoLEAF (ensemble, calibrated)",.9825,.9858,.8478,.0107,.0529,1],["FT-Transformer (plain)",.9798,.9837,.8439,.0108,.0564],["MLP (embeddings)",.9744,.9794,.8199,.0106,.0638],["Random Forest",.9737,.9789,.8216,.0561,.0683],["Extra Trees",.9667,.9740,.7964,.0953,.0848],["Logistic Regression",.9427,.9511,.7289,.0080,.0947]];
+document.querySelector("#lb tbody").innerHTML=L.map(r=>`<tr${r[6]?' class="k"':""}><td>${r[0]}</td><td><span class="bar" data-w="${(r[1]-.94)/.0455*90+4}" style="width:0"></span>${r[1].toFixed(4)}</td><td>${r[2].toFixed(4)}</td><td>${r[3].toFixed(4)}</td><td>${r[4].toFixed(4)}</td><td>${r[5].toFixed(4)}</td></tr>`).join("");
+const A=[["KaoLEAF full (seed 0)",.9819,1],["− pretraining (stage 1)",.9824],["− local operator",.9817],["− periodic embedding",.9801],["− knowledge-based token order (shuffled)",.9815],["Plain FT-Transformer",.9798],["MLP",.9744]];
+document.querySelector("#abl tbody").innerHTML=A.map(r=>`<tr${r[2]?' class="k"':""}><td>${r[0]}</td><td>${r[1].toFixed(4)}</td></tr>`).join("");
+const T=[["age","P"],["occupation_status","P"],["years_employed","P"],["employment_share","P"],["credit_score","C"],["credit_history_years","C"],["credit_history_share","C"],["defaults_on_file","C"],["delinquencies_last_2yrs","C"],["derogatory_marks","C"],["risk_events","C"],["annual_income","K"],["savings_assets","K"],["current_debt","K"],["debt_to_income_ratio","K"],["savings_to_loan","K"],["total_debt_to_income","K"],["product_type","R"],["loan_intent","R"],["loan_amount","R"],["interest_rate","R"],["loan_to_income_ratio","R"],["payment_to_income_ratio","R"],["annual_interest_burden","R"]];
+const col={P:["#fff","#111"],C:["#111","#fff"],K:["#c8c8c8","#111"],R:["#ececec","#111"]};
+document.getElementById("tokens").innerHTML='<span class="tk" style="background:#111;color:#fff">[CLS]</span>'+T.map(t=>`<span class="tk" style="background:${col[t[1]][0]};color:${col[t[1]][1]}">${t[0]}</span>`).join("");
+document.getElementById("copy").onclick=e=>{navigator.clipboard.writeText(document.getElementById("bib").textContent).then(()=>{e.target.textContent="Copied";setTimeout(()=>e.target.textContent="Copy BibTeX",1800)})};
+</script>
+<script>
+(()=>{const RM=matchMedia("(prefers-reduced-motion: reduce)").matches,$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const w=$("#word");w.setAttribute("aria-label","KaoLEAF");w.innerHTML=[...w.textContent].map((c,i)=>`<span class="l ${i<3?"kao":"leaf"}" style="--i:${i}" aria-hidden="true">${c}</span>`).join("");
+let wi=0;
+const ws=["scores","explains","calibrates","audits","stratifies"],rt=$("#rot");
+if(!RM){setInterval(()=>{wi=(wi+1)%ws.length;rt.style.animation="none";rt.offsetWidth;rt.textContent=ws[wi];rt.style.animation="flip .6s"},2200)}
+const it=["AUC <b>0.9852</b>","ECE <b>0.0096</b>","24 feature tokens","5-seed deep ensemble","score <b>300–850</b>","5 risk bands A–E","Integrated Gradients","masked-feature pre-training","reason codes","GSBAIL"].map(t=>`<span>${t} <b>✦</b></span>`).join("");$("#track").innerHTML=it+it;
+/* token network */
+const cv=$("#net"),cx=cv.getContext("2d"),col=["#111","#777","#aaa","#ccc"],N=[],m={x:-999,y:-999};let W,H,vis=true;
+function rs(){const r=cv.parentElement.getBoundingClientRect(),d=devicePixelRatio||1;W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0)}rs();addEventListener("resize",rs);
+for(let i=0;i<40;i++)N.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,c:col[i%4],r:3+Math.random()*3});
+$(".hero").addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect();m.x=e.clientX-r.left;m.y=e.clientY-r.top});$(".hero").addEventListener("mouseleave",()=>m.x=-999);
+new IntersectionObserver(e=>vis=e[0].isIntersecting).observe($(".hero"));
+function draw(t){if(vis){cx.clearRect(0,0,W,H);for(const n of N){if(!RM){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;const dx=m.x-n.x,dy=m.y-n.y,d=Math.hypot(dx,dy);if(d<160){n.x+=dx*.012;n.y+=dy*.012}}}
+for(let i=0;i<N.length;i++)for(let j=i+1;j<N.length;j++){const a=N[i],b=N[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<150){const p=.5+.5*Math.sin(t/500+i*1.7+j);cx.strokeStyle=`rgba(17,17,17,${(1-d/150)*(.12+.3*p)})`;cx.lineWidth=1+p;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke()}}
+for(const n of N){cx.fillStyle=n.c;cx.globalAlpha=.85;cx.beginPath();cx.arc(n.x,n.y,n.r,0,6.3);cx.fill()}cx.globalAlpha=1}
+if(!RM)requestAnimationFrame(draw)}requestAnimationFrame(draw);
+/* gauge */
+const P=(a,r)=>[150+r*Math.cos(a),150+r*Math.sin(a)],gc=["#d0d0d0","#a8a8a8","#7a7a7a","#4a4a4a","#111"];
+$("#gauge").insertAdjacentHTML("afterbegin",gc.map((c,i)=>{const a0=Math.PI+i*Math.PI/5+.025,a1=Math.PI+(i+1)*Math.PI/5-.025,[x0,y0]=P(a0,118),[x1,y1]=P(a1,118);return `<path d="M${x0} ${y0}A118 118 0 0 1 ${x1} ${y1}" stroke="${c}" stroke-width="24" fill="none" stroke-linecap="round"/>`}).join(""));
+function count(el,n,d,s,ms){if(RM){el.textContent=(+n).toFixed(d)+s;return}const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-p,3);el.textContent=(n*e).toFixed(d)+s;p<1&&requestAnimationFrame(f)})(t0)}
+$(".demo").addEventListener("shown",()=>{$("#needle").style.transform="rotate(90deg)";const g=$("#gs");const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/2400),e=1-Math.pow(1-p,3);g.textContent=Math.round(300+550*e);p<1&&requestAnimationFrame(f)})(t0);$$(".rb i").forEach((b,i)=>{b.style.transitionDelay=i*110+"ms";b.style.width=b.dataset.w+"%"})});
+$$(".kpi").forEach((k,i)=>{k.style.transitionDelay=i*90+"ms";k.addEventListener("shown",()=>{const b=k.querySelector("b");count(b,+b.dataset.n,+b.dataset.d,b.dataset.s||"",1500)})});
+/* race */
+const race=()=>$$("#lb .bar").forEach((b,i)=>{b.style.transition="none";b.style.width="0";b.offsetWidth;b.style.transition="";b.style.transitionDelay=i*90+"ms";b.style.width=b.dataset.w+"px"});
+$("#lb").closest(".scroll").addEventListener("shown",race);$("#replay").onclick=race;
+/* reveal */
+const rv=$$("section h2,.lede,.plate,.eq,.kpi,.note,.scroll,.tokens,.legend,section h3,pre,.pipe,.demo");rv.forEach(e=>e.classList.add("rv"));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);e.target.dispatchEvent(new Event("shown"))}}),{threshold:.15});rv.forEach(e=>io.observe(e));
+/* tilt, sparkles, lightbox, progress, spy */
+$$(".kpi").forEach(e=>{const k=6;e.addEventListener("mousemove",ev=>{if(RM)return;const r=e.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;e.style.transition="transform .1s";e.style.transform=`perspective(800px) rotateX(${-y*k}deg) rotateY(${x*k}deg)`});e.addEventListener("mouseleave",()=>{e.style.transition="transform .5s";e.style.transform=""})});
+const lb=document.createElement("div");lb.className="lb";lb.innerHTML="<img alt=''><span class='hand'>click anywhere to close ✕</span>";document.body.appendChild(lb);
+$$(".plate img").forEach(i=>{i.style.cursor="zoom-in";i.onclick=()=>{lb.querySelector("img").src=i.src;lb.classList.add("on")}});lb.onclick=()=>lb.classList.remove("on");addEventListener("keydown",e=>e.key==="Escape"&&lb.classList.remove("on"));
+const pr=$("#progress");addEventListener("scroll",()=>{pr.style.width=scrollY/(document.documentElement.scrollHeight-innerHeight)*100+"%"},{passive:true});
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)$$("nav a").forEach(a=>a.classList.toggle("act",a.getAttribute("href")=="#"+e.target.id))}),{rootMargin:"-45% 0px -50% 0px"});$$("section[id]").forEach(x=>so.observe(x));
+if(RM)$("#pipesvg").pauseAnimations();
+})();
+</script>
+</body>
+</html>
