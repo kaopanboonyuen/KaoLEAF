@@ -8,6 +8,9 @@
 Government Savings Bank Artificial Intelligence Laboratory (GSBAIL)
 
 [![Project page](https://img.shields.io/badge/project%20page-kaopanboonyuen.github.io%2FKaoLEAF-111111)](https://kaopanboonyuen.github.io/KaoLEAF)
+[![Hugging Face Demo](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-FFD21E)](https://huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo)
+[![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Pretrained%20model-FFD21E)](https://huggingface.co/kaopanboonyuen/KaoLEAF)
+[![Hugging Face Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E)](https://huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca)
 <!-- [![Open in Colab](https://img.shields.io/badge/Colab-run%20the%20notebook-F9AB00?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/kaopanboonyuen/KaoLEAF/blob/main/KaoLEAF_Loan_Approval_Notebook.ipynb) -->
 [![Status](https://img.shields.io/badge/status-manuscript%20in%20preparation-lightgrey)](#citation)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](#installation)
@@ -19,6 +22,14 @@ KaoLEAF is an attention-based model for credit decisions on tabular applicant da
 
 > **Status.** This repository reserves the idea and shares a reproducible reference implementation. The paper is in preparation, so numbers and wording may change before publication.
 
+### 🤗 Try it, download it
+
+| | Link |
+|---|---|
+| 🤗 **Live demo** | [huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo](https://huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo) |
+| 🤗 **Pretrained model** | [huggingface.co/kaopanboonyuen/KaoLEAF](https://huggingface.co/kaopanboonyuen/KaoLEAF) |
+| 🤗 **Dataset** | [huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca](https://huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca) |
+
 ---
 
 ## Contents
@@ -28,6 +39,7 @@ KaoLEAF is an attention-based model for credit decisions on tabular applicant da
 - [Method](#method)
 - [Repository structure](#repository-structure)
 - [Installation](#installation)
+- [Pretrained model and dataset](#pretrained-model-and-dataset)
 - [Quick start](#quick-start)
 - [Reproducing the paper numbers](#reproducing-the-paper-numbers)
 - [Explainability and audit](#explainability-and-audit)
@@ -48,6 +60,7 @@ KaoLEAF is an attention-based model for credit decisions on tabular applicant da
 - **Auditable.** Integrated Gradients with a completeness check, attention rollout, a SHAP cross-check, ICE/PDP monotonicity tests and a slice/fairness audit.
 - **Separated layers.** Representation, outcome prediction and decision policy are independent, so thresholds and hard rules can change without retraining.
 - **Reproducible.** Fixed seeds, a SHA-256 check on the dataset and weights, a run manifest, a model card and a reload-and-verify test.
+- **Open on 🤗 Hugging Face.** A [live demo](https://huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo), the [pretrained model](https://huggingface.co/kaopanboonyuen/KaoLEAF) and the [dataset](https://huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca) are all public.
 
 ---
 
@@ -123,12 +136,47 @@ git clone https://github.com/kaopanboonyuen/KaoLEAF.git
 cd KaoLEAF
 python -m venv .venv && source .venv/bin/activate
 
-pip install torch numpy pandas scikit-learn scipy joblib matplotlib seaborn
+pip install torch numpy pandas scikit-learn scipy joblib matplotlib seaborn huggingface_hub
 # only needed to re-run the baselines and the SHAP cross-check:
 pip install xgboost lightgbm catboost optuna shap
 ```
 
 The reported runs used Python 3.13, PyTorch 2.11 (CUDA 13.0) and a Colab T4 GPU. The code also runs on CPU, more slowly. Exact versions are in `kaoleaf_artifacts/run_manifest.json`.
+
+---
+
+## Pretrained model and dataset
+
+🤗 The pretrained model and the dataset are hosted on Hugging Face:
+
+- **Pretrained model:** [huggingface.co/kaopanboonyuen/KaoLEAF](https://huggingface.co/kaopanboonyuen/KaoLEAF)
+- **Dataset:** [huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca](https://huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca)
+- **Live demo:** [huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo](https://huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo)
+
+Download them from Python:
+
+```python
+from huggingface_hub import snapshot_download
+
+# pretrained model (weights, preprocessor, config)
+snapshot_download(repo_id="kaopanboonyuen/KaoLEAF", local_dir="kaoleaf_artifacts/model")
+
+# dataset
+snapshot_download(
+    repo_id="kaopanboonyuen/loan-approval-us-ca",
+    repo_type="dataset",
+    local_dir="dataset",
+)
+```
+
+Or with the command line:
+
+```bash
+huggingface-cli download kaopanboonyuen/KaoLEAF --local-dir kaoleaf_artifacts/model
+huggingface-cli download kaopanboonyuen/loan-approval-us-ca --repo-type dataset --local-dir dataset
+```
+
+The repository also ships a copy of the weights under `kaoleaf_artifacts/model/`, so the quick start below works without downloading anything.
 
 ---
 
@@ -161,7 +209,7 @@ for feature, value, attribution in why[0]["reasons_against_approval"]:
     print(kl.format_reason(feature, value, attribution))
 ```
 
-This is the notebook's demo applicant. It is one example, not a benchmark.
+This is the notebook's demo applicant. It is one example, not a benchmark. You can also try scoring an applicant without any code in the [🤗 live demo](https://huggingface.co/spaces/kaopanboonyuen/KaoLEAF-Demo).
 
 ### Keep decisions as policy, not as model weights
 
@@ -254,7 +302,7 @@ The manuscript is in preparation. Until then, please cite the project:
 
 ## Acknowledgements
 
-We thank **parthpatel2130** for releasing the [Realistic Loan Approval Dataset (US and Canada)](https://www.kaggle.com/datasets/parthpatel2130/realistic-loan-approval-dataset-us-and-canada) on Kaggle, on which all results in this repository were obtained. Please follow the dataset's license terms on its Kaggle page.
+We thank **parthpatel2130** for releasing the [Realistic Loan Approval Dataset (US and Canada)](https://www.kaggle.com/datasets/parthpatel2130/realistic-loan-approval-dataset-us-and-canada) on Kaggle, on which all results in this repository were obtained. A copy is also available on [🤗 Hugging Face](https://huggingface.co/datasets/kaopanboonyuen/loan-approval-us-ca). Please follow the dataset's license terms on its Kaggle page.
 
 ---
 
