@@ -240,7 +240,7 @@ The manuscript is in preparation. Until then, please cite the project:
 
 ```bibtex
 @misc{panboonyuen2026kaoleaf,
-  title  = {{KaoLEAF}: Knowledge-Augmented Optimization and Learned Embeddings
+  title  = {KaoLEAF: Knowledge-Augmented Optimization and Learned Embeddings
             for Automated Feature Representation},
   author = {Panboonyuen, Teerapong},
   year   = {2026},
