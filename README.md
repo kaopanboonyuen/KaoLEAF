@@ -90,58 +90,6 @@ Observed approval rises monotonically from E to A and tracks the predicted rate 
 
 ---
 
-## Method
-
-Let an applicant be $x=(x^{\text{num}}_{1..m},\,x^{\text{cat}}_{1..c})$. Numerics are mapped to $\tilde x_j\approx\mathcal N(0,1)$ by a quantile transform fitted on the training split only.
-
-**1. Feature tokenisation (learned periodic embeddings).**
-
-$$
-\mathbf e_j=\operatorname{ReLU}\Big(W_j\big[\sin(2\pi \mathbf c_j\tilde x_j)\,;\,\cos(2\pi \mathbf c_j\tilde x_j)\big]\Big)+\tilde x_j\,\mathbf a_j+\mathbf b_j,\qquad \mathbf t_j=\mathbf e_j+\mathbf p_j
-$$
-
-Categorical features use $\mathbf t_j=E_j[x_j]+\mathbf p_j$. A `[CLS]` token is prepended to give $H^{(0)}\in\mathbb R^{(m+c+1)\times d}$.
-
-**2. Local operator** over the knowledge-ordered token axis:
-
-$$
-\tilde H=H+\operatorname{Drop}\big(\operatorname{GLU}(\operatorname{PW}(\operatorname{DW}_{k}(\operatorname{LN}(H))))\big)
-$$
-
-**3. Global dependency modelling** (pre-LN attention with a GEGLU feed-forward, repeated for $L$ layers):
-
-$$
-H'=\tilde H+\operatorname{MHA}(\operatorname{LN}\tilde H),\qquad H''=H'+\operatorname{FFN}(\operatorname{LN}H')
-$$
-
-**4. Behaviour embedding and prediction.**
-
-$$
-\mathbf z=\operatorname{GELU}\!\big(W[\operatorname{LN}(h_{\text{cls}})\,;\,\textstyle\sum_i\alpha_i h_i]\big),\qquad f(x)=\mathbf w^\top\mathbf z+b,\qquad \hat p=\sigma\!\big(f(x)/T\big)
-$$
-
-**5. Training.** Stage 1 minimises masked-feature reconstruction (MSE on numerics plus cross-entropy on categoricals) without labels. Stage 2 minimises BCE with AdamW, warm-up and cosine decay, AMP, and early stopping on validation AUC. The final logit is the mean over $S=5$ members.
-
-**6. Calibration and score.** $T^\star=\arg\min_T\operatorname{NLL}(\sigma(\bar f/T))$ on validation (fitted $T^\star=1.044$), then
-
-$$
-\text{Score}=\operatorname{round}(300+550\,\hat p),\qquad \text{bands }A\text{–}E\text{ at }\hat p\in\{0.8,0.6,0.4,0.2\}
-$$
-
-**7. Explanations.** Integrated Gradients in logit space, starting from the median applicant mapped into quantile space (not the zero vector):
-
-$$
-\mathrm{IG}_j(x)=(\tilde x_j-\tilde x^{0}_j)\int_0^1\partial_j f\big(\tilde x^{0}+\alpha(\tilde x-\tilde x^{0})\big)\,d\alpha
-$$
-
-Categorical features use UNK-occlusion.
-
-**8. KaoLEAF-Fusion.** A logistic stacker over the logits of KaoLEAF and the three strongest gradient-boosted models, fit on validation only. The test set is never touched.
-
-Default configuration: `d=64`, `heads=4`, `layers=3`, `k=8` frequencies, `σ=0.5`, dropout `0.1`, conv kernel `3`, about **190K parameters** per member.
-
----
-
 ## Repository structure
 
 ```text
