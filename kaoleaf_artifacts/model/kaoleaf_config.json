@@ -1,0 +1,96 @@
+{
+  "cfg": {
+    "d": 64,
+    "heads": 4,
+    "layers": 3,
+    "k": 8,
+    "sigma": 0.5,
+    "drop": 0.1,
+    "ks": 3,
+    "use_local": true,
+    "emb_mode": "periodic"
+  },
+  "temperature": 1.0441011778134717,
+  "n_members": 5,
+  "features": [
+    "age",
+    "occupation_status",
+    "years_employed",
+    "employment_share",
+    "credit_score",
+    "credit_history_years",
+    "credit_history_share",
+    "defaults_on_file",
+    "delinquencies_last_2yrs",
+    "derogatory_marks",
+    "risk_events",
+    "annual_income",
+    "savings_assets",
+    "current_debt",
+    "debt_to_income_ratio",
+    "savings_to_loan",
+    "total_debt_to_income",
+    "product_type",
+    "loan_intent",
+    "loan_amount",
+    "interest_rate",
+    "loan_to_income_ratio",
+    "payment_to_income_ratio",
+    "annual_interest_burden"
+  ],
+  "dropped_features": [],
+  "score_map": "300 + 550 * calibrated_probability",
+  "bands": [
+    [
+      0.0,
+      0.2,
+      "E",
+      "Very weak"
+    ],
+    [
+      0.2,
+      0.4,
+      "D",
+      "Weak"
+    ],
+    [
+      0.4,
+      0.6,
+      "C",
+      "Moderate"
+    ],
+    [
+      0.6,
+      0.8,
+      "B",
+      "Strong"
+    ],
+    [
+      0.8,
+      1.01,
+      "A",
+      "Very strong"
+    ]
+  ],
+  "data_sha256": "aa6435d06ea46ec256b79a2780faee807ba63334df4c4ce507aa9bc2097ae61f",
+  "seed": 42,
+  "split": "70/10/20 stratified",
+  "test_metrics_calibrated": {
+    "test_AUC": 0.9824718351907811,
+    "test_PR-AUC": 0.9858453666553306,
+    "test_KS": 0.8478499170033511,
+    "test_LogLoss": 0.16794748680443225,
+    "test_Brier": 0.05288418388061195,
+    "test_ECE": 0.010661516002519062,
+    "test_Acc@0.5": 0.9241,
+    "test_F1@0.5": 0.9309057806099226
+  },
+  "stacker_weights": {
+    "KaoLEAF": 0.05097963312166756,
+    "LightGBM (Optuna)": 0.9258613243808239,
+    "CatBoost": 0.43525083996050334,
+    "XGBoost": -0.18241258837237703
+  },
+  "torch": "2.11.0+cu130",
+  "python": "3.13.15"
+}
